@@ -1,21 +1,58 @@
-<!-- templates/resultado.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Resultado</title>
-    <link rel="stylesheet" href="/static/style.css">
+@app.route('/calcular', methods=['POST'])
+def calcular():
+    metragem = float(request.form['metragem'])
+    tipo = int(request.form['tipo'])       # 0 ou 1
+    padrao = int(request.form['padrao'])   # 0, 1 ou 2
 
-</head>
-<body>
-    <h2>Resultado da Estimativa</h2>
-    <p>Metragem: {{ metragem }} m²</p>
-    <p>Custo médio por m²: R$ {{ "%.2f"|format(custo_m2) }}</p>
-    <p><strong>Custo total estimado: R$ {{ "%.2f"|format(custo_total) }}</strong></p>
-    <hr>
-    <p>Cluster KMeans (3 clusters): {{ cluster_kmeans }}</p>
-    <p>Cluster MeanShift: {{ cluster_meanshift }}</p>
+    # 1️⃣ Buscar custo do dataset para o ponto informado
+    filtro = (df_long['Tipo_num'] == tipo) & (df_long['Padrao_num'] == padrao)
+    custo_m2 = df_long.loc[filtro, 'Custo_m2'].mean()
+    custo_total = metragem * custo_m2
 
-    <a href="/">Fazer outro cálculo</a>
-</body>
-</html>
+    # 2️⃣ Criar o ponto do usuário (tipo, padrão, custo_m2)
+    novo_ponto = [[tipo, padrao, custo_m2]]
+
+    # 3️⃣ Padronizar o ponto (usando o mesmo scaler dos dados)
+    novo_ponto_scaled = scaler.transform(novo_ponto)
+
+    # 4️⃣ Projetar o ponto no PCA
+    pca = PCA(n_components=2)
+    X_pca = pca.fit_transform(X_scaled)
+    ponto_pca = pca.transform(novo_ponto_scaled)
+
+    # 5️⃣ Gráfico 2D com orçamento no ponto
+    plt.figure(figsize=(6, 5))
+    plt.scatter(X_pca[:, 0], X_pca[:, 1], c=kmeans.labels_, cmap='viridis', s=80, label='Dataset')
+    plt.scatter(ponto_pca[:, 0], ponto_pca[:, 1], c='red', s=120, edgecolors='black', marker='X', label='Seu orçamento')
+    plt.text(ponto_pca[:, 0] + 0.05, ponto_pca[:, 1] + 0.05, f"R$ {custo_total:,.2f}", fontsize=10, color='red')
+    plt.title('Clusters - Visualização 2D (PCA)')
+    plt.xlabel('Componente Principal 1')
+    plt.ylabel('Componente Principal 2')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('static/grafico_2d.png')
+    plt.close()
+
+    # 6️⃣ Gráfico 3D com orçamento no ponto
+    fig = plt.figure(figsize=(7, 6))
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(X_scaled[:, 0], X_scaled[:, 1], X_scaled[:, 2], c=kmeans.labels_, cmap='viridis', s=80)
+    ax.scatter(novo_ponto_scaled[:, 0], novo_ponto_scaled[:, 1], novo_ponto_scaled[:, 2],
+               c='red', s=200, edgecolors='black', marker='X', label='Seu orçamento')
+    ax.text(novo_ponto_scaled[:, 0], novo_ponto_scaled[:, 1], novo_ponto_scaled[:, 2] + 0.2,
+            f"R$ {custo_total:,.2f}", color='red', fontsize=10)
+    ax.set_title('Clusters - Visualização 3D')
+    ax.set_xlabel('Tipo')
+    ax.set_ylabel('Padrão')
+    ax.set_zlabel('Custo/m²')
+    plt.tight_layout()
+    plt.savefig('static/grafico_3d.png')
+    plt.close()
+
+    # 7️⃣ Retornar para o HTML com os novos gráficos
+    return render_template('resultado.html',
+                           metragem=metragem,
+                           custo_m2=custo_m2,
+                           custo_total=custo_total,
+                           grafico2d='static/grafico_2d.png',
+                           grafico3d='static/grafico_3d.png')
