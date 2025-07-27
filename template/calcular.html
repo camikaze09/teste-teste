@@ -1,0 +1,21 @@
+<!-- templates/resultado.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+</head>
+<body>
+    <h2>Resultado da Estimativa</h2>
+    <p>Metragem: {{ metragem }} m²</p>
+    <p>Custo médio por m²: R$ {{ "%.2f"|format(custo_m2) }}</p>
+    <p><strong>Custo total estimado: R$ {{ "%.2f"|format(custo_total) }}</strong></p>
+    <hr>
+    <p>Cluster KMeans (3 clusters): {{ cluster_kmeans }}</p>
+    <p>Cluster MeanShift: {{ cluster_meanshift }}</p>
+
+    <a href="/">Fazer outro cálculo</a>
+</body>
+</html>
