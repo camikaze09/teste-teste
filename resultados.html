@@ -1,40 +1,5 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Custos</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f7f7f7; }
-        h1 { color: #333; }
-        form { background-color: white; padding: 20px; border-radius: 10px; width: 350px; box-shadow: 0px 0px 8px rgba(0,0,0,0.1);}
-        label { display: block; margin-top: 10px; font-weight: bold;}
-        input, select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc;}
-        button { margin-top: 15px; background-color: #4CAF50; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; width: 100%;}
-        button:hover { background-color: #45a049; }
-    </style>
-</head>
-<body>
-    <h1>💰 Calculadora de Custo de Construção</h1>
-    <form action="/calcular" method="POST">
-        <label for="metragem">Metragem (m²):</label>
-        <input type="number" step="0.01" name="metragem" required>
+<h3>Gráfico 2D</h3>
+<img src="{{ grafico2d }}" width="500">
 
-        <label for="tipo">Tipo de residência:</label>
-        <select name="tipo" required>
-            <option value="0">Residencial 3 Quartos</option>
-            <option value="1">Residencial 4 Quartos</option>
-        </select>
-
-        <label for="padrao">Padrão de acabamento:</label>
-        <select name="padrao" required>
-            <option value="0">Baixo</option>
-            <option value="1">Normal</option>
-            <option value="2">Alto</option>
-        </select>
-
-        <button type="submit">Calcular</button>
-    </form>
-</body>
-</html>
-
+<h3>Gráfico 3D</h3>
+<img src="{{ grafico3d }}" width="500">
